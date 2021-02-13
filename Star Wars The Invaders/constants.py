@@ -1,5 +1,7 @@
 import pygame
 
+# TODO fara importuri in constante, doar variabile de tipuri primitive
+
 # Colors
 color = (255, 255, 255)
 color_light = (170, 170, 170)

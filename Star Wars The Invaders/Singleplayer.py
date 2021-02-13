@@ -1,29 +1,60 @@
+import pygame
 import constants
-
-# stanga sus e originea
-playerX = 370
-playerY = 480
-playerChangeX = 0
-playerChangeY = 0
+import time
 
 bulletY = 480
 bulletChangeY = 10
 
+playerChangeX = 0
+playerChangeY = 0
 
-def initSingleplayer(screen):
-    pass
-    # playerX += playerChangeX
-    # playerY += playerChangeY
-    #
-    # if playerX <= 0:
-    #     playerX = 0
-    # if playerX >= 765:
-    #     playerX = 765
-    #
-    # if playerY <= 0:
-    #     playerY = 0
-    # if playerY >= 565:
-    #     playerY = 565
+playerX = 1920 / 2
+playerY = 1080 - 100
+
+
+def initSingleplayer(screen, width, height):
+    while True:
+        screen.fill((255, 255, 255))
+
+        global playerX, playerY
+        global playerChangeX, playerChangeY
+
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    playerChangeX = -1
+                if event.key == pygame.K_RIGHT:
+                    playerChangeX = 1
+                if event.key == pygame.K_UP:
+                    playerChangeY = -1
+                if event.key == pygame.K_DOWN:
+                    playerChangeY = 1
+                if event.key == pygame.K_SPACE:
+                    fire(screen, playerX, bulletY)
+                if event.key == pygame.K_ESCAPE:
+                    return
+
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+                    playerChangeX = 0
+                if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
+                    playerChangeY = 0
+
+        playerX += playerChangeX
+        playerY += playerChangeY
+
+        if playerX <= 0:
+            playerX = 0
+        if playerX >= width - constants.playerImg.get_width():
+            playerX = width - constants.playerImg.get_width()
+
+        if playerY <= 0:
+            playerY = 0
+        if playerY >= height - constants.playerImg.get_height():
+            playerY = height - constants.playerImg.get_height()
+
+        player(screen, playerX, playerY)
+        pygame.display.update()
 
 
 def player(screen, x, y):
@@ -33,26 +64,3 @@ def player(screen, x, y):
 
 def fire(screen, x, y):
     pass
-
-    # for event in pygame.event.get():
-    #     if event.type == pygame.KEYDOWN:
-    #         if event.key == pygame.K_LEFT:
-    #             playerChangeX = -0.1
-    #         if event.key == pygame.K_RIGHT:
-    #             playerChangeX = 0.1
-    #         if event.key == pygame.K_UP:
-    #             playerChangeY = -0.1
-    #         if event.key == pygame.K_DOWN:
-    #             playerChangeY = 0.1
-    #         if event.key == pygame.K_SPACE:
-    #             # fire(playerX, bulletY)
-    #             pass
-    #
-    #     if event.type == pygame.KEYUP:
-    #         if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
-    #             playerChangeX = 0
-    #         if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
-    #             playerChangeY = 0
-
-    # player(playerX, playerY)
-

@@ -1,10 +1,13 @@
 import pygame
 
+# Local Imports
 import constants
 import Singleplayer
 
 pygame.init()
+
 running = True
+
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 width = screen.get_width()
 height = screen.get_height()
@@ -17,12 +20,14 @@ textMultiplayer = smallfont.render('Multiplayer', True, constants.color)
 
 
 def main():
-    # Background
+
     global running
-    screen.fill((123, 0, 0))
-    screen.blit(constants.background, (0, 0))
+
+
 
     while running:
+
+        screen.blit(constants.background, (0, 0))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -33,7 +38,7 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse = pygame.mouse.get_pos()
                 if isOnButtonSingleplayer(mouse, width, height):
-                    Singleplayer.initSingleplayer(screen)
+                    Singleplayer.initSingleplayer(screen, width, height)
 
                 elif isOnButtonMultiplayer(mouse, width, height):
                     pass
@@ -48,11 +53,19 @@ def main():
         buttonMultiplayer(screen, mouse, width, height)
         buttonQuit(screen, mouse, width, height)
 
-        screen.blit(textSingleplayer, (width / 2, height / 2))
-        screen.blit(textMultiplayer, (width / 2, height / 2 + 80))
-        screen.blit(textQuit, (width / 2 - 20, height / 2 + 160))
+# TODO de refacut cu date care nu sunt hardcodate
+        screen.blit(textSingleplayer, ((width / 2 - 200) + (400 - textSingleplayer.get_rect().width) / 2,
+                                       height / 2 + ((60 - textSingleplayer.get_rect().height) / 2)))
+        screen.blit(textMultiplayer, ((width / 2 - 200) + (400 - textMultiplayer.get_rect().width) / 2,
+                                      height / 2 + 80 + ((60 - textMultiplayer.get_rect().height) / 2)))
+        screen.blit(textQuit, ((width / 2 - 200) + (400 - textQuit.get_rect().width) / 2,
+                               height / 2 + 160 + + ((60 - textQuit.get_rect().height) / 2)))
         pygame.display.update()
 
+
+# TODO
+#  asociez un id pentru fiecare buton si fac o functie generala, astfel scapam de date harcodate si probabil din
+#  6 functii facem una
 
 def isOnButtonSingleplayer(mouse, width, height):
     if width / 2 - 200 <= mouse[0] <= width / 2 + 200 and height / 2 <= mouse[1] <= height / 2 + 60:
