@@ -1,4 +1,5 @@
 import pygame
+import random
 import constants
 import math
 
@@ -22,9 +23,11 @@ bulletState = "Ready"
 
 score = 0
 
+
 # TODO de rezolvat sa atinga oricare parte a texturii (modif distance / dimensiunea texturii pe post de interval!!!)
-def isCollision(enemyX, enemyY, bulletX, bulletY):
-    distance = math.sqrt(((enemyX - bulletX) ** 2) + ((enemyY - bulletY) ** 2))
+def isCollision(firstObjectX, firstObjectY, secondObjectX, secondObjectY):
+
+    distance = math.sqrt(((firstObjectX - secondObjectX) ** 2) + ((firstObjectY - secondObjectY) ** 2))
     if distance < 27:
         return True
     return False
@@ -77,7 +80,6 @@ def initSingleplayer(screen, width, height):
         if playerY >= height - constants.playerImg.get_height():
             playerY = height - constants.playerImg.get_height()
 
-
         if bulletY <= 0:
             bulletState = "Ready"
 
@@ -91,10 +93,11 @@ def initSingleplayer(screen, width, height):
             bulletY = playerY
             score += 1
             print(score)
+            enemyX = random.randint(0, 1900)
+            enemyY = random.randint(0, 1000)
 
         player(screen, playerX, playerY)
         enemy(screen, enemyX, enemyY)
-
 
         pygame.display.update()
 
@@ -107,6 +110,7 @@ def enemy(screen, x, y):
     screen.blit(constants.enemyImg, (x, y))
 
 
+# TODO de centrat glontul
 def fire(screen, x, y):
     global bulletState
     bulletState = "Fire"
