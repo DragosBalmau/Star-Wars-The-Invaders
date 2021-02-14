@@ -1,15 +1,33 @@
 import pygame
 import constants
-import time
-
-bulletY = 480
-bulletChangeY = 10
+import math
 
 playerChangeX = 0
 playerChangeY = 0
 
 playerX = 1920 / 2
 playerY = 1080 - 100
+
+enemyChangeX = 0
+enemyChangeY = 0
+
+enemyX = 1920 / 2
+enemyY = 1080 / 2 - 300
+
+bulletY = playerY
+bulletX = playerX
+
+bulletChangeY = -5
+bulletState = "Ready"
+
+score = 0
+
+# TODO de rezolvat sa atinga oricare parte a texturii (modif distance / dimensiunea texturii pe post de interval!!!)
+def isCollision(enemyX, enemyY, bulletX, bulletY):
+    distance = math.sqrt(((enemyX - bulletX) ** 2) + ((enemyY - bulletY) ** 2))
+    if distance < 27:
+        return True
+    return False
 
 
 def initSingleplayer(screen, width, height):
@@ -18,6 +36,9 @@ def initSingleplayer(screen, width, height):
 
         global playerX, playerY
         global playerChangeX, playerChangeY
+        global bulletX, bulletY, bulletChangeY, bulletState
+        global enemyX, enemyY
+        global score
 
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
@@ -30,7 +51,10 @@ def initSingleplayer(screen, width, height):
                 if event.key == pygame.K_DOWN:
                     playerChangeY = 1
                 if event.key == pygame.K_SPACE:
-                    fire(screen, playerX, bulletY)
+                    if bulletState == "Ready":
+                        bulletY = playerY
+                        bulletX = playerX
+                        fire(screen, bulletX, bulletY)
                 if event.key == pygame.K_ESCAPE:
                     return
 
@@ -53,14 +77,37 @@ def initSingleplayer(screen, width, height):
         if playerY >= height - constants.playerImg.get_height():
             playerY = height - constants.playerImg.get_height()
 
+
+        if bulletY <= 0:
+            bulletState = "Ready"
+
+        if bulletState == "Fire":
+            fire(screen, bulletX, bulletY)
+            bulletY += bulletChangeY
+
+        collision = isCollision(enemyX, enemyY, bulletX, bulletY)
+        if collision:
+            bulletState = "Ready"
+            bulletY = playerY
+            score += 1
+            print(score)
+
         player(screen, playerX, playerY)
+        enemy(screen, enemyX, enemyY)
+
+
         pygame.display.update()
 
 
 def player(screen, x, y):
-    # Draw the image
     screen.blit(constants.playerImg, (x, y))
 
 
+def enemy(screen, x, y):
+    screen.blit(constants.enemyImg, (x, y))
+
+
 def fire(screen, x, y):
-    pass
+    global bulletState
+    bulletState = "Fire"
+    screen.blit(constants.bulletImg, (x, y))

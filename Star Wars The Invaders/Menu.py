@@ -22,9 +22,6 @@ textMultiplayer = smallfont.render('Multiplayer', True, constants.color)
 def main():
 
     global running
-
-
-
     while running:
 
         screen.blit(constants.background, (0, 0))
