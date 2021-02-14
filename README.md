@@ -6,8 +6,8 @@ TODO:
 - [ ] power ups
 - [ ] pregame logo display
 - [X] moving background
-- [ ] health bar
-- [ ] display score
+- [X] health bar
+- [X] display score
 - [ ] pause menu
 - [ ] choose Team menu -> Singleplayer
 - [ ] always 3rd level with meteorites 

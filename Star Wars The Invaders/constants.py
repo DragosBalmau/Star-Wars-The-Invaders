@@ -10,9 +10,6 @@ color_light = (170, 170, 170)
 color_dark = (100, 100, 100)
 
 # Images
-background = pygame.image.load("Resources\_backgroung.jpg")
-
-
 
 playerImg = pygame.image.load("Resources\\x-wing.png")
 playerImg = pygame.transform.scale(playerImg, (120, 120))
