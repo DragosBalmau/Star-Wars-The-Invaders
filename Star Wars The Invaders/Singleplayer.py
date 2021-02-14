@@ -18,7 +18,7 @@ enemyY = 1080 / 2 - 300
 bulletY = playerY
 bulletX = playerX
 
-bulletChangeY = -5
+bulletChangeY = -10
 bulletState = "Ready"
 
 score = 0
@@ -33,16 +33,25 @@ def isCollision(firstObjectX, firstObjectY, secondObjectX, secondObjectY):
     return False
 
 
-def initSingleplayer(screen, width, height):
-    while True:
-        screen.fill((255, 255, 255))
+def initSingleplayer(screen, width, height, clock):
 
+
+    backgroundY = 0
+
+    while True:
+
+        # screen.fill((255, 255, 255))
+        # TODO BUG: the ship is moving slow !!!!!!!!!!!!!
+        backgroundY = backgroundWallpaper(screen, height, backgroundY)
         global playerX, playerY
         global playerChangeX, playerChangeY
         global bulletX, bulletY, bulletChangeY, bulletState
         global enemyX, enemyY
         global score
 
+        print(playerX, playerY)
+
+        # TODO de facut functie singleplayerControls
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
@@ -100,6 +109,19 @@ def initSingleplayer(screen, width, height):
         enemy(screen, enemyX, enemyY)
 
         pygame.display.update()
+        clock.tick(constants.FPS)
+
+
+def backgroundWallpaper(screen, height, y):
+
+    backgroundSingleplayer = pygame.image.load("Resources/backgroundSingleplayer.png").convert()
+    backgroundSingleplayer = pygame.transform.scale(backgroundSingleplayer, (backgroundSingleplayer.get_rect().width, height))
+    relativeY = y % backgroundSingleplayer.get_rect().height
+    screen.blit(backgroundSingleplayer, (0, relativeY - backgroundSingleplayer.get_rect().height))
+    if relativeY < height:
+        screen.blit(backgroundSingleplayer, (0, relativeY))
+    y += 5
+    return y
 
 
 def player(screen, x, y):

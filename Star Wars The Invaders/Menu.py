@@ -1,12 +1,12 @@
 import pygame
+import random
+import time
 
 # Local Imports
 import constants
 import Singleplayer
 
 pygame.init()
-
-running = True
 
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 width = screen.get_width()
@@ -21,37 +21,21 @@ textMultiplayer = smallfont.render('Multiplayer', True, constants.color)
 
 def main():
 
-    global running
+    clock = pygame.time.Clock()
+    backgroundX = 0
 
-    while running:
+    while True:
 
-        screen.blit(constants.background, (0, 0))
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
+        backgroundX = backgroundWallpaper(backgroundX)
 
-            if event.type == pygame.QUIT:
-                pygame.quit()
-
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                mouse = pygame.mouse.get_pos()
-                if isOnButtonSingleplayer(mouse, width, height):
-                    Singleplayer.initSingleplayer(screen, width, height)
-
-                elif isOnButtonMultiplayer(mouse, width, height):
-                    pass
-
-                elif isOnButtonQuit(mouse, width, height):
-                    pygame.quit()
-                    exit()
+        menuControls(clock)
 
         mouse = pygame.mouse.get_pos()
-
         buttonSingleplayer(screen, mouse, width, height)
         buttonMultiplayer(screen, mouse, width, height)
         buttonQuit(screen, mouse, width, height)
 
-# TODO de refacut cu date care nu sunt hardcodate
+        # TODO de refacut cu date care nu sunt hardcodate
         screen.blit(textSingleplayer, ((width / 2 - 200) + (400 - textSingleplayer.get_rect().width) / 2,
                                        height / 2 + ((60 - textSingleplayer.get_rect().height) / 2)))
         screen.blit(textMultiplayer, ((width / 2 - 200) + (400 - textMultiplayer.get_rect().width) / 2,
@@ -59,6 +43,35 @@ def main():
         screen.blit(textQuit, ((width / 2 - 200) + (400 - textQuit.get_rect().width) / 2,
                                height / 2 + 160 + + ((60 - textQuit.get_rect().height) / 2)))
         pygame.display.update()
+        clock.tick(constants.FPS)
+
+def menuControls(clock):
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse = pygame.mouse.get_pos()
+            if isOnButtonSingleplayer(mouse, width, height):
+                Singleplayer.initSingleplayer(screen, width, height, clock)
+
+            elif isOnButtonMultiplayer(mouse, width, height):
+                pass
+
+            elif isOnButtonQuit(mouse, width, height):
+                pygame.quit()
+                exit()
+
+def backgroundWallpaper(x):
+
+    backgroundMenu = pygame.image.load("Resources/backgroundMenu.png").convert()
+    backgroundMenu = pygame.transform.scale(backgroundMenu, (backgroundMenu.get_rect().width, height))
+    relativeX = x % backgroundMenu.get_rect().width
+    screen.blit(backgroundMenu, (relativeX - backgroundMenu.get_rect().width, 0))
+    if relativeX < width:
+        screen.blit(backgroundMenu, (relativeX, 0))
+    x -= 1
+    return x
 
 
 # TODO
