@@ -19,6 +19,7 @@ textSingleplayer = smallfont.render('Singleplayer', True, constants.color)
 textMultiplayer = smallfont.render('Multiplayer', True, constants.color)
 
 
+
 def main():
 
     clock = pygame.time.Clock()
@@ -107,7 +108,7 @@ def buttonMultiplayer(screen, mouse, width, height):
     if isOnButtonMultiplayer(mouse, width, height):
         pygame.draw.rect(screen, constants.color_light, [width / 2 - 200, height / 2 + 80, 400, 60])
     else:
-        pygame.draw.rect(screen, constants.color_dark, [width / 2 - 200, height / 2 + 80, 400, 60])
+        pygame.draw.rect(screen, constants.color_light, [width / 2 - 200, height / 2 + 80, 400, 60])
 
 
 def buttonQuit(screen, mouse, width, height):
