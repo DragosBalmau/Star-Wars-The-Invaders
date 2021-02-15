@@ -46,6 +46,7 @@ def main():
         pygame.display.update()
         clock.tick(constants.FPS)
 
+
 def menuControls(clock):
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -63,15 +64,21 @@ def menuControls(clock):
                 pygame.quit()
                 exit()
 
+
 def backgroundWallpaper(x):
+
+    logoMenu = pygame.image.load("Resources/StarWarsLogo.png")
+    logoMenu = pygame.transform.scale(logoMenu, (750, 750))
 
     backgroundMenu = pygame.image.load("Resources/backgroundMenu.png").convert()
     backgroundMenu = pygame.transform.scale(backgroundMenu, (backgroundMenu.get_rect().width, height))
+
     relativeX = x % backgroundMenu.get_rect().width
     screen.blit(backgroundMenu, (relativeX - backgroundMenu.get_rect().width, 0))
     if relativeX < width:
         screen.blit(backgroundMenu, (relativeX, 0))
     x -= 1
+    screen.blit(logoMenu, ((width - logoMenu.get_rect().width) / 2, -100))
     return x
 
 
