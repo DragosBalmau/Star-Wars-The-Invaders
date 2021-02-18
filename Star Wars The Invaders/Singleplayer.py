@@ -1,10 +1,15 @@
 import pygame
 import random
+import threading
+
+# Local imports
 import constants
-import math
 import Enemy
 import Player
 import Bullet
+
+background_y = 0
+background_loop = True
 
 
 def initSingleplayer(screen, width, height, clock):
@@ -12,32 +17,38 @@ def initSingleplayer(screen, width, height, clock):
     player = Player.Player()
     bullet = Bullet.Bullet(player.X, player.Y)
 
-    backgroundY = 0
     level = 1
+    global background_loop
+    background_loop = True
+
+    thread_background = threading.Thread(target=background, args=(screen, height))
+    thread_background.start()
 
     while True:
 
         # screen.fill((255, 255, 255))
-        # TODO De cautat o metoda prin care sa paralelizez render-ul de la fundal si cel de la entitati (sau GIFImage)
-        backgroundY = backgroundWallpaper(screen, height, backgroundY)
+        # TODO de cautat problema la lag-ul miscarii celorlate entitati
+
         print(player.X, player.Y)
 
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
-                    player.ChangeX = -20
+                    player.ChangeX = -7
                 if event.key == pygame.K_RIGHT:
-                    player.ChangeX = 20
+                    player.ChangeX = 7
                 if event.key == pygame.K_UP:
-                    player.ChangeY = -20
+                    player.ChangeY = -7
                 if event.key == pygame.K_DOWN:
-                    player.ChangeY = 20
+                    player.ChangeY = 7
                 if event.key == pygame.K_SPACE:
                     if bullet.state == "Ready":
                         bullet.Y = player.Y
-                        bullet.X = player.X
-                        bullet.state = Bullet.fire(screen, bullet.X, bullet.Y, bullet.state)
+                        bullet.X = player.X + (player.image.get_rect().width / 2) - (bullet.image.get_rect().width / 2)
+                        bullet.state = bullet.fire(screen)
                 if event.key == pygame.K_ESCAPE:
+                    background_loop = False
+                    thread_background.join()
                     return
 
             if event.type == pygame.KEYUP:
@@ -49,35 +60,34 @@ def initSingleplayer(screen, width, height, clock):
         player.X += player.ChangeX
         player.Y += player.ChangeY
 
-        player.X, player.Y = stayInTheScreen(player.X, player.Y, width, height)
+        player.stay_in_screen(width, height)
 
-        enemies = generateEnemies(setNumberEnemies(level))
+        enemies = generate_enemies(set_nr_enemies(level))
 
         # for enemy in enemies:
         #     EnemyClass.displayEnemy(screen, enemy.X, enemy.Y)
 
         bullet.verif_bullet(screen)
 
-        # TODO de mutat isCollision in Bullet
-        collision = isCollision(enemy.X, enemy.Y, bullet.X, bullet.Y)
+        # TODO de mutat isCollision in Bullet ???
+        collision = is_collision(enemy, bullet)
         if collision:
             bullet.state = "Ready"
             bullet.Y = player.Y
             player.score += 1
-            enemy.X = random.randint(0, 1900)
-            enemy.Y = random.randint(0, 1000)
+            enemy.X = random.randint(100, 1800)
+            enemy.Y = random.randint(100, 900)
 
-        displayScore(screen, player.score, width, height)
-        displayHealth(screen, player.health, width, height)
+        display_score(screen, player.score, width, height)
+        display_health(screen, player.health, width, height)
 
-        Player.display_player(screen, player.X, player.Y)
-
-        Enemy.displayEnemy(screen, enemy.X, enemy.Y)
+        player.display_player(screen)
+        enemy.display_enemy(screen)
         pygame.display.update()
         clock.tick(constants.FPS)
 
 
-def generateEnemies(number):
+def generate_enemies(number):
     enemies = []
     #
     # for enemy in range(number):
@@ -86,7 +96,7 @@ def generateEnemies(number):
     return enemies
 
 
-def setNumberEnemies(level):
+def set_nr_enemies(level):
     if level == 3:
         # meteorites
         number = 25
@@ -98,49 +108,34 @@ def setNumberEnemies(level):
     return number
 
 
-def stayInTheScreen(playerX, playerY, width, height):
-    if playerX <= 0:
-        playerX = 0
-    if playerX >= width - constants.playerImg.get_width():
-        playerX = width - constants.playerImg.get_width()
+def background(screen, height):
+    while background_loop:
+        global background_y
+        background_game = pygame.image.load(constants.background_game).convert_alpha()
+        background_game = pygame.transform.scale(background_game, (background_game.get_rect().width, height))
 
-    if playerY <= 0:
-        playerY = 0
-    if playerY >= height - constants.playerImg.get_height():
-        playerY = height - constants.playerImg.get_height()
-
-    return playerX, playerY
-
-
-def backgroundWallpaper(screen, height, y):
-    backgroundSingleplayer = pygame.image.load("Resources/backgroundSingleplayer.png").convert_alpha()
-    backgroundSingleplayer = pygame.transform.scale(backgroundSingleplayer,
-                                                    (backgroundSingleplayer.get_rect().width, height))
-
-    relativeY = y % backgroundSingleplayer.get_rect().height
-    screen.blit(backgroundSingleplayer, (0, relativeY - backgroundSingleplayer.get_rect().height))
-    if relativeY < height:
-        screen.blit(backgroundSingleplayer, (0, relativeY))
-    y += 3
-    return y
+        relative_y = background_y % background_game.get_rect().height
+        screen.blit(background_game, (0, relative_y - background_game.get_rect().height))
+        if relative_y < height:
+            screen.blit(background_game, (0, relative_y))
+        background_y += 3
 
 
-# TODO de rezolvat sa atinga oricare parte a texturii (modif distance / dimensiunea texturii pe post de interval!!!)
-def isCollision(object_x, object_y, bullet_x, bullet_y):
-    distance = math.sqrt((((object_x + constants.enemyImg.get_rect().width / 2) - bullet_x) ** 2) + (((object_y + constants.enemyImg.get_rect().height / 2) - bullet_y) ** 2))
-    if distance <= constants.enemyImg.get_rect().height / 2:
+def is_collision(entity, bullet):
+    if entity.X <= bullet.X + bullet.image.get_rect().width and bullet.X <= entity.X + entity.image.get_rect().width \
+            and bullet.Y <= entity.Y + entity.image.get_rect().height:
         return True
     return False
 
 
 # TODO putin design la score si health bar
-def displayScore(screen, score, width, height):
-    smallfont = pygame.font.SysFont('Corbel', 35)
-    textScore = smallfont.render('Score: ' + str(score), True, constants.color)
-    screen.blit(textScore, (30, height - 100))
+def display_score(screen, score, width, height):
+    small_font = pygame.font.SysFont('Corbel', 35)
+    text_score = small_font.render('Score: ' + str(score), True, constants.color)
+    screen.blit(text_score, (30, height - 100))
 
 
-def displayHealth(screen, health, width, height):
-    smallfont = pygame.font.SysFont('Corbel', 35)
-    textHealth = smallfont.render('Health: ' + str(health), True, constants.color)
-    screen.blit(textHealth, (30, height - 50))
+def display_health(screen, health, width, height):
+    small_font = pygame.font.SysFont('Corbel', 35)
+    text_health = small_font.render('Health: ' + str(health), True, constants.color)
+    screen.blit(text_health, (30, height - 50))

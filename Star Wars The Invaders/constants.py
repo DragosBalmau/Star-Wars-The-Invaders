@@ -1,7 +1,4 @@
-import pygame
-
-# TODO fara importuri in constante, doar variabile de tipuri primitive
-
+# Frame rate
 FPS = 120
 
 # Colors
@@ -10,11 +7,9 @@ color_light = (170, 170, 170)
 color_dark = (100, 100, 100)
 
 # Images
-playerImg = pygame.image.load("Resources\\x-wing.png")
-playerImg = pygame.transform.scale(playerImg, (120, 120))
-
-bulletImg = pygame.image.load("Resources\Bullet.png")
-bulletImg = pygame.transform.scale(bulletImg, (60, 60))
-
-enemyImg = pygame.image.load("Resources\\fighter.png")
-enemyImg = pygame.transform.scale(enemyImg, (120, 120))
+player_img = "Resources\\x-wing.png"
+bullet_img = "Resources\\laser_bullet_blue.png"
+enemy_img = "Resources\\fighter.png"
+logo_img = "Resources\\StarWarsLogo.png"
+background_menu = "Resources\\backgroundMenu.png"
+background_game = "Resources\\backgroundSingleplayer.png"

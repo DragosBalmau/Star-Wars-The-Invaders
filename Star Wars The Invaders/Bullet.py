@@ -1,5 +1,8 @@
 import constants
+import pygame
 
+    # TODO
+    #  - de gandit o modalitate sa trag mai multe gloante (sa creez un obiect pentru fiecare -> Class bullet)
 
 class Bullet:
 
@@ -7,22 +10,23 @@ class Bullet:
         self.Y = bulletY
         self.X = bulletX
 
-        self.ChangeY = -50
+        self.ChangeY = -10
         self.state = "Ready"
+        self.image = pygame.image.load(constants.bullet_img)
 
     def verif_bullet(self, screen):
         if self.Y <= 0:
             self.state = "Ready"
 
         if self.state == "Fire":
-            self.state = fire(screen, self.X, self.Y, self.state)
+            self.state = self.fire(screen)
             self.Y += self.ChangeY
 
+    def fire(self, screen):
 
-# TODO
-#  - de centrat glontul
-#  - de gandit o modalitate sa trag mai multe gloante (sa creez un obiect pentru fiecare -> Class bullet)
-def fire(screen, x, y, state):
-    state = "Fire"
-    screen.blit(constants.bulletImg, (x, y))
-    return state
+        self.state = "Fire"
+        screen.blit(self.image, (self.X, self.Y))
+        return self.state
+
+
+
