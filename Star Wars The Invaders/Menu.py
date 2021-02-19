@@ -17,14 +17,12 @@ text_singleplayer = small_font.render('Singleplayer', True, constants.color)
 text_multiplayer = small_font.render('Multiplayer', True, constants.color)
 
 
-
 def main():
-
     clock = pygame.time.Clock()
     background_x = 0
 
     while True:
-
+        clock.tick(constants.FPS)
         background_x = background(background_x)
 
         menu_controls(clock)
@@ -42,7 +40,6 @@ def main():
         screen.blit(text_quit, ((width / 2 - 200) + (400 - text_quit.get_rect().width) / 2,
                                 height / 2 + 160 + + ((60 - text_quit.get_rect().height) / 2)))
         pygame.display.update()
-        clock.tick(constants.FPS)
 
 
 def menu_controls(clock):
@@ -64,12 +61,12 @@ def menu_controls(clock):
 
 
 def background(x):
-
     logo_menu = pygame.image.load(constants.logo_img)
-    logo_menu = pygame.transform.scale(logo_menu, (750, 750))
+    logo_menu = pygame.transform.scale(logo_menu, (750, 750)).convert_alpha()
 
     background_menu = pygame.image.load(constants.background_menu).convert()
-    background_menu = pygame.transform.scale(background_menu, (background_menu.get_rect().width, height))
+    background_menu = pygame.transform.scale(background_menu,
+                                             (background_menu.get_rect().width, height)).convert_alpha()
 
     relative_x = x % background_menu.get_rect().width
     screen.blit(background_menu, (relative_x - background_menu.get_rect().width, 0))

@@ -1,32 +1,30 @@
 import constants
 import pygame
 
-    # TODO
-    #  - de gandit o modalitate sa trag mai multe gloante (sa creez un obiect pentru fiecare -> Class bullet)
+
+# TODO
+#  - de gandit o modalitate sa trag mai multe gloante
 
 class Bullet:
 
-    def __init__(self, bulletX, bulletY):
-        self.Y = bulletY
-        self.X = bulletX
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 
-        self.ChangeY = -10
+        self.change_y = -10
         self.state = "Ready"
-        self.image = pygame.image.load(constants.bullet_img)
+        self.image = pygame.image.load(constants.laser_img).convert_alpha()
 
     def verif_bullet(self, screen):
-        if self.Y <= 0:
+        if self.y <= 0:
             self.state = "Ready"
 
         if self.state == "Fire":
             self.state = self.fire(screen)
-            self.Y += self.ChangeY
+            self.y += self.change_y
 
     def fire(self, screen):
 
         self.state = "Fire"
-        screen.blit(self.image, (self.X, self.Y))
+        screen.blit(self.image, (self.x, self.y))
         return self.state
-
-
-

@@ -5,28 +5,28 @@ import pygame
 class Player:
 
     def __init__(self, health=100, score=0):
-        self.ChangeX = 0
-        self.ChangeY = 0
+        self.change_x = 0
+        self.change_y = 0
 
-        self.X = 1920 / 2
-        self.Y = 1080 - 100
+        self.x = 1920 / 2
+        self.y = 1080 - 100
 
         self.health = health
         self.score = score
 
         self.image = pygame.image.load(constants.player_img)
-        self.image = pygame.transform.scale(self.image, (120, 120))
+        self.image = pygame.transform.scale(self.image, (120, 120)).convert_alpha()
 
     def display_player(self, screen):
-        screen.blit(self.image, (self.X, self.Y))
+        screen.blit(self.image, (self.x, self.y))
 
     def stay_in_screen(self, width, height):
-        if self.X <= 0:
-            self.X = 0
-        if self.X >= width - self.image.get_width():
-            self.X = width - self.image.get_width()
+        if self.x <= 0:
+            self.x = 0
+        if self.x >= width - self.image.get_width():
+            self.x = width - self.image.get_width()
 
-        if self.Y <= 0:
-            self.Y = 0
-        if self.Y >= height - self.image.get_height():
-            self.Y = height - self.image.get_height()
+        if self.y <= 0:
+            self.y = 0
+        if self.y >= height - self.image.get_height():
+            self.y = height - self.image.get_height()
