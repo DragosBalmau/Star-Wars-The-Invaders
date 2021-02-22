@@ -8,7 +8,8 @@ color_dark = (100, 100, 100)
 
 # Images
 player_img = "Resources/x-wing.png"
-laser_img = "Resources/laser_bullet_blue.png"
+laser_img_blue = "Resources/laser_bullet_blue.png"
+laser_img_red = "Resources/laser_bullet_red.png"
 enemy_img = "Resources/fighter.png"
 logo_img = "Resources/star_wars_logo.png"
 background_menu = "Resources/background_menu.png"

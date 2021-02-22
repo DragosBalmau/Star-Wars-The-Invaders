@@ -15,17 +15,23 @@ background_loop = True
 def initSingleplayer(screen, width, height, clock):
     player = Player.Player()
     enemies = create_all_enemies()
-    bullet = Bullet.Bullet(player.x, player.y)
 
     level = 1
     global background_loop
     background_loop = True
+
+    level_display_time = 0
+
+    #TODO respawn cooldown
+    respawn_cooldown_player = 0
 
     thread_background = threading.Thread(target=background, args=(screen, height))
     thread_background.start()
 
     render_index = []
     render_index = generate_enemies(level, render_index)
+
+    enemy_picked = random_enemy_fire(enemies, render_index)
 
     while True:
 
@@ -46,10 +52,11 @@ def initSingleplayer(screen, width, height, clock):
                 if event.key == pygame.K_DOWN:
                     player.change_y = 7
                 if event.key == pygame.K_SPACE:
-                    if bullet.state == "Ready":
-                        bullet.y = player.y
-                        bullet.x = player.x + (player.image.get_rect().width / 2) - (bullet.image.get_rect().width / 2)
-                        bullet.state = bullet.fire(screen)
+                    if player.bullet.state == "Ready":
+                        player.bullet.y = player.y
+                        player.bullet.x = player.x + (player.image.get_rect().width / 2) - (
+                                    player.bullet.image.get_rect().width / 2)
+                        player.bullet.state = player.fire(screen)
                 if event.key == pygame.K_ESCAPE:
                     background_loop = False
                     thread_background.join()
@@ -65,22 +72,35 @@ def initSingleplayer(screen, width, height, clock):
         player.y += player.change_y
 
         player.stay_in_screen(width, height)
-        bullet.verif_bullet(screen)
+        player.verif_bullet(screen)
+
+        enemy_picked.fire(screen)
+
+        if is_collision(player, enemy_picked.bullet):
+            enemy_picked.bullet.player_contact = True
+            player.health -= 20
+            player.x = width / 2
+            player.y = height / 2
+
+        if enemy_picked.verif_bullet() == 0:
+            enemy_picked = random_enemy_fire(enemies, render_index)
 
         if len(render_index) == 0:
             level += 1
             render_index = generate_enemies(level, render_index)
+            level_display_time = 0
 
         for enemy in enemies:
             if enemies.index(enemy) in render_index:
-                collision = is_collision(enemy, bullet)
-                if collision:
-                    bullet.state = "Ready"
-                    bullet.y = player.y
+                if is_collision(enemy, player.bullet):
+                    player.bullet.state = "Ready"
+                    player.bullet.y = player.y
                     player.score += 1
                     render_index.remove(enemies.index(enemy))
 
-        display_level(screen, level, width, height)
+        level_display_time += 1
+        if level_display_time < 100:
+            display_level(screen, level, width, height)
         display_score(screen, player.score, width, height)
         display_health(screen, player.health, width, height)
 
@@ -99,8 +119,16 @@ def generate_enemies(level, render_index):
         while position in render_index:
             position = random.randint(0, 29)
         render_index.append(position)
-
     return render_index
+
+
+def random_enemy_fire(enemies, render_index):
+    picked_id = random.randint(0, 29)
+    while picked_id not in render_index:
+        picked_id = random.randint(0, 29)
+    print(picked_id)
+
+    return enemies[picked_id]
 
 
 def create_all_enemies():
@@ -110,7 +138,7 @@ def create_all_enemies():
 
     for enemy in range(33):
         if start_x < 1800:
-            enemies.append(Enemy.Enemy(start_x, start_y))
+            enemies.append(Enemy.Enemy(start_x, start_y, Bullet.Bullet(start_x + 20, start_y + 120)))
             start_x += 186.66
         else:
             start_y += 160
@@ -148,13 +176,19 @@ def background(screen, height):
 
 
 def is_collision(entity, bullet):
-    if entity.x <= bullet.x + bullet.image.get_rect().width and bullet.x <= entity.x + entity.image.get_rect().width \
-            and bullet.y <= entity.y + entity.image.get_rect().height:
-        return True
+    if isinstance(entity, Enemy.Enemy):
+        if entity.x <= bullet.x + bullet.image.get_rect().width and bullet.x <= entity.x + entity.image.get_rect().width \
+                and bullet.y <= entity.y + entity.image.get_rect().height:
+            return True
+    else:
+        if entity.x <= bullet.x + bullet.image.get_rect().width and bullet.x <= entity.x + entity.image.get_rect().width \
+                and bullet.y + bullet.image.get_rect().height >= entity.y and bullet.y <= entity.y + entity.image.get_rect().height:
+            return True
     return False
 
 
 # TODO putin design la score si health bar
+# TODO schimbat fontul
 def display_score(screen, score, width, height):
     small_font = pygame.font.SysFont('Corbel', 35)
     text_score = small_font.render('Score: ' + str(score), True, constants.color)
@@ -168,6 +202,7 @@ def display_health(screen, health, width, height):
 
 
 def display_level(screen, level, width, height):
-    small_font = pygame.font.SysFont('Corbel', 35)
-    text_health = small_font.render('Level: ' + str(level), True, constants.color)
-    screen.blit(text_health, (30, height - 150))
+    small_font = pygame.font.SysFont('Corbel', 100)
+    text_level = small_font.render('Level ' + str(level), True, constants.color)
+    screen.blit(text_level,
+                (width / 2 - text_level.get_rect().width / 2, height / 2 - text_level.get_rect().height / 2))

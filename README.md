@@ -2,7 +2,9 @@
 
 TODO:
 
-- [ ] scale textures
+
+- [X] finish level system
+- [X] scale textures
 - [ ] power ups
 - [ ] pregame logo display
 - [X] moving background

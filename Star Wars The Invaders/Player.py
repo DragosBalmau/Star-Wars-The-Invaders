@@ -1,10 +1,11 @@
 import constants
+import Bullet
 import pygame
 
 
 class Player:
 
-    def __init__(self, health=100, score=0):
+    def __init__(self, health=100, score=0, bullet=Bullet.Bullet(1920 / 2, 1080)):
         self.change_x = 0
         self.change_y = 0
 
@@ -13,6 +14,8 @@ class Player:
 
         self.health = health
         self.score = score
+
+        self.bullet = bullet
 
         self.image = pygame.image.load(constants.player_img)
         self.image = pygame.transform.scale(self.image, (120, 120)).convert_alpha()
@@ -30,3 +33,16 @@ class Player:
             self.y = 0
         if self.y >= height - self.image.get_height():
             self.y = height - self.image.get_height()
+
+    def verif_bullet(self, screen):
+        if self.bullet.y <= 0:
+            self.bullet.state = "Ready"
+
+        if self.bullet.state == "Fire":
+            self.bullet.state = self.fire(screen)
+            self.bullet.y += self.bullet.change_y_player
+
+    def fire(self, screen):
+        self.bullet.state = "Fire"
+        screen.blit(self.bullet.image.convert_alpha(), (self.bullet.x, self.bullet.y))
+        return self.bullet.state
