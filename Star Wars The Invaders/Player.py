@@ -5,7 +5,14 @@ import pygame
 
 class Player:
 
-    def __init__(self, health=100, score=0, bullet=Bullet.Bullet(1920 / 2, 1080)):
+    def __init__(self, health=100, score=0, bullet=Bullet.Bullet(1920 / 2, 1080), team="Republic"):
+        self.team = team
+        if self.team != "Republic":
+            self.image = pygame.image.load(constants.enemy_img)
+            self.image = pygame.transform.rotate(self.image, 180)
+        else:
+            self.image = pygame.image.load(constants.player_img)
+
         self.change_x = 0
         self.change_y = 0
 
@@ -16,8 +23,6 @@ class Player:
         self.score = score
 
         self.bullet = bullet
-
-        self.image = pygame.image.load(constants.player_img)
         self.image = pygame.transform.scale(self.image, (120, 120)).convert_alpha()
 
     def display_player(self, screen):

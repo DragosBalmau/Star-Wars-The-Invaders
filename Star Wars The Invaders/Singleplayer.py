@@ -13,8 +13,18 @@ background_loop = True
 
 
 def initSingleplayer(screen, width, height, clock):
-    player = Player.Player()
-    enemies = create_all_enemies()
+
+    team = choose_team(screen, width, height, clock)
+    print(team)
+    if team == "Republic":
+        pass
+    elif team == "Empire":
+        pass
+    else:
+        return
+
+    player = Player.Player(team=team)
+    enemies = create_all_enemies(team)
 
     level = 1
     global background_loop
@@ -22,7 +32,7 @@ def initSingleplayer(screen, width, height, clock):
 
     level_display_time = 0
 
-    #TODO respawn cooldown
+    # TODO respawn cooldown
     respawn_cooldown_player = 0
 
     thread_background = threading.Thread(target=background, args=(screen, height))
@@ -87,6 +97,10 @@ def initSingleplayer(screen, width, height, clock):
 
         if len(render_index) == 0:
             level += 1
+            if level > 10:
+                background_loop = False
+                thread_background.join()
+                return
             render_index = generate_enemies(level, render_index)
             level_display_time = 0
 
@@ -131,14 +145,14 @@ def random_enemy_fire(enemies, render_index):
     return enemies[picked_id]
 
 
-def create_all_enemies():
+def create_all_enemies(team):
     enemies = []
     start_x = 60
     start_y = 60
 
     for enemy in range(33):
         if start_x < 1800:
-            enemies.append(Enemy.Enemy(start_x, start_y, Bullet.Bullet(start_x + 20, start_y + 120)))
+            enemies.append(Enemy.Enemy(start_x, start_y, Bullet.Bullet(start_x + 20, start_y + 120), team))
             start_x += 186.66
         else:
             start_y += 160
@@ -163,8 +177,9 @@ def set_nr_enemies(level):
 
 def background(screen, height):
     global background_loop
+    global background_y
     while background_loop:
-        global background_y
+        # TODO imaginea nu trebuie incarcata la fiecare apelarea a functiei
         background_game = pygame.image.load(constants.background_game).convert_alpha()
         background_game = pygame.transform.scale(background_game, (background_game.get_rect().width, height))
 
@@ -187,8 +202,41 @@ def is_collision(entity, bullet):
     return False
 
 
+def choose_team(screen, width, height, clock):
+
+    republican_team = pygame.image.load(constants.republican).convert_alpha()
+    # republican_team = pygame.transform.scale(republican_team, (background_game.get_rect().width, height))
+    empire_team = pygame.image.load(constants.empire).convert_alpha()
+    # republican_team = pygame.transform.scale(republican_team, (background_game.get_rect().width, height))
+    background_choose_team = pygame.image.load(constants.background_menu).convert_alpha()
+    background_choose_team = pygame.transform.scale(background_choose_team, (background_choose_team.get_rect().width, height))
+
+    small_font = pygame.font.SysFont('Corbel', 100)
+    choose_team_text = small_font.render('Choose your team', True, constants.color)
+
+    while True:
+        clock.tick(constants.FPS)
+        screen.blit(background_choose_team, (0, 0))
+        screen.blit(choose_team_text, (width / 2 - choose_team_text.get_rect().width / 2, height / 4 - choose_team_text.get_rect().height / 2))
+        screen.blit(republican_team, (width / 2 - 2 * republican_team.get_rect().width, height / 2.5))
+        screen.blit(empire_team, (width / 2 + empire_team.get_rect().width, height / 2.5))
+
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse = pygame.mouse.get_pos()
+                if width / 2 - 2 * republican_team.get_rect().width <= mouse[0] <= width / 2 - republican_team.get_rect().width and height / 2.5 <= mouse[1] <= height / 2.5 + republican_team.get_rect().height:
+                    return "Republic"
+                elif width / 2 + empire_team.get_rect().width <= mouse[0] <= width / 2 + 2 * empire_team.get_rect().width and height / 2.5 <= mouse[1] <= height / 2.5 + republican_team.get_rect().height:
+                    return "Empire"
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    return False
+        pygame.display.update()
+
+
 # TODO putin design la score si health bar
 # TODO schimbat fontul
+# TODO de incarcat textul doar o singura data
 def display_score(screen, score, width, height):
     small_font = pygame.font.SysFont('Corbel', 35)
     text_score = small_font.render('Score: ' + str(score), True, constants.color)

@@ -1,4 +1,5 @@
 import pygame
+import threading
 
 # Local Imports
 import constants
@@ -16,21 +17,29 @@ text_quit = small_font.render('Quit', True, constants.color)
 text_singleplayer = small_font.render('Singleplayer', True, constants.color)
 text_multiplayer = small_font.render('Multiplayer', True, constants.color)
 
+logo_menu = pygame.image.load(constants.logo_img)
+logo_menu = pygame.transform.scale(logo_menu, (750, 750)).convert_alpha()
+
+background_menu = pygame.image.load(constants.background_menu).convert()
+background_menu = pygame.transform.scale(background_menu,
+                                         (background_menu.get_rect().width, height)).convert_alpha()
+background_x = 0
 
 def main():
+
     clock = pygame.time.Clock()
-    background_x = 0
+    global logo_menu
 
     while True:
         clock.tick(constants.FPS)
-        background_x = background(background_x)
-
         menu_controls(clock)
-
+        background()
         mouse = pygame.mouse.get_pos()
         button_singleplayer(screen, mouse, width, height)
         button_multiplayer(screen, mouse, width, height)
         button_quit(screen, mouse, width, height)
+
+        screen.blit(logo_menu, ((width - logo_menu.get_rect().width) / 2, -100))
 
         # TODO de refacut cu date care nu sunt hardcodate
         screen.blit(text_singleplayer, ((width / 2 - 200) + (400 - text_singleplayer.get_rect().width) / 2,
@@ -60,21 +69,15 @@ def menu_controls(clock):
                 exit()
 
 
-def background(x):
-    logo_menu = pygame.image.load(constants.logo_img)
-    logo_menu = pygame.transform.scale(logo_menu, (750, 750)).convert_alpha()
+def background():
 
-    background_menu = pygame.image.load(constants.background_menu).convert()
-    background_menu = pygame.transform.scale(background_menu,
-                                             (background_menu.get_rect().width, height)).convert_alpha()
-
-    relative_x = x % background_menu.get_rect().width
+    global background_menu
+    global background_x
+    relative_x = background_x % background_menu.get_rect().width
     screen.blit(background_menu, (relative_x - background_menu.get_rect().width, 0))
     if relative_x < width:
         screen.blit(background_menu, (relative_x, 0))
-    x -= 1
-    screen.blit(logo_menu, ((width - logo_menu.get_rect().width) / 2, -100))
-    return x
+    background_x -= 0.5
 
 
 # TODO

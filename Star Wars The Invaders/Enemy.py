@@ -4,14 +4,19 @@ import pygame
 
 class Enemy:
 
-    def __init__(self, x, y, bullet):
+    def __init__(self, x, y, bullet, team="Empire"):
+        self.team = team
+        if self.team == "Republic":
+            self.image = pygame.image.load(constants.enemy_img)
+        else:
+            self.image = pygame.image.load(constants.player_img)
+            self.image = pygame.transform.rotate(self.image, 180)
+
         self.change_x = 0
         self.change_y = 0
         self.x = x
         self.y = y
         self.bullet = bullet
-
-        self.image = pygame.image.load(constants.enemy_img)
         self.image = pygame.transform.scale(self.image, (120, 120)).convert_alpha()
 
         self.bullet.image = pygame.image.load(constants.laser_img_red)

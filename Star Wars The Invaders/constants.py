@@ -14,3 +14,7 @@ enemy_img = "Resources/fighter.png"
 logo_img = "Resources/star_wars_logo.png"
 background_menu = "Resources/background_menu.png"
 background_game = "Resources/background_game.png"
+
+# TODO de refacut texturile astea
+republican = "Resources/republican_pilot.png"
+empire = "Resources/empire_pilot.png"
