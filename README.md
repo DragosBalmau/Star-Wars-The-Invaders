@@ -6,7 +6,7 @@ TODO:
 - [X] finish level system
 - [X] scale textures
 - [ ] power ups
-- [ ] pregame logo display
+- [X] pregame logo display
 - [X] moving background
 - [X] health bar
 - [X] display score
