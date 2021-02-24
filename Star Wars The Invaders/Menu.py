@@ -16,8 +16,14 @@ text_quit = small_font.render('Quit', True, constants.color)
 text_singleplayer = small_font.render('Singleplayer', True, constants.color)
 text_multiplayer = small_font.render('Multiplayer', True, constants.color)
 
-logo_menu = pygame.image.load(constants.logo_img)
-logo_menu = pygame.transform.scale(logo_menu, (750, 750)).convert_alpha()
+logo_menu = pygame.image.load(constants.logo_star_wars_img).convert_alpha()
+logo_menu = pygame.transform.scale(logo_menu, (750, 750))
+
+logo_python = pygame.image.load(constants.logo_python).convert_alpha()
+logo_python = pygame.transform.scale(logo_python, (750, 750))
+
+logo_pygame = pygame.image.load(constants.logo_pygame).convert_alpha()
+# logo_pygame = pygame.transform.scale(logo_pygame, (logo_pygame.get_rect().width * 2, logo_pygame.get_rect().height * 2))
 
 background_menu = pygame.image.load(constants.background_menu).convert()
 background_menu = pygame.transform.scale(background_menu,
@@ -29,6 +35,35 @@ def main():
 
     clock = pygame.time.Clock()
     global logo_menu
+    pregame_cinematic = 0
+
+    while True:
+        screen.fill((0, 0, 0))
+        pregame_cinematic += 1
+
+        if pregame_cinematic < 1500:
+            if 0 <= pregame_cinematic < 505:
+                logo_python.set_alpha(pregame_cinematic)
+            if 994 <= pregame_cinematic < 1500:
+                logo_python.set_alpha(255 - (pregame_cinematic - 994))
+            screen.blit(logo_python, (width / 2 - logo_python.get_rect().width / 2, height / 2 - logo_python.get_rect().height / 2))
+        elif 1500 <= pregame_cinematic < 3000:
+            if 1500 <= pregame_cinematic < 2005:
+                logo_pygame.set_alpha(pregame_cinematic - 1500)
+            if 2494 <= pregame_cinematic < 3000:
+                logo_pygame.set_alpha(255 - (pregame_cinematic - 2494))
+            screen.blit(logo_pygame, (width / 2 - logo_pygame.get_rect().width / 2, height / 2 - logo_pygame.get_rect().height / 2))
+        elif 3000 <= pregame_cinematic < 4500:
+            if 3000 <= pregame_cinematic < 3505:
+                logo_menu.set_alpha(pregame_cinematic - 3000)
+            if 3994 <= pregame_cinematic < 4500:
+                logo_menu.set_alpha(255 - (pregame_cinematic - 3994))
+            screen.blit(logo_menu, (width / 2 - logo_menu.get_rect().width / 2, height / 2 - logo_menu.get_rect().height / 2))
+        else:
+            break
+        pygame.display.flip()
+
+    logo_menu.set_alpha(255)
 
     while True:
         clock.tick(constants.FPS)
