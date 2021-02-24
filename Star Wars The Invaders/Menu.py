@@ -1,5 +1,4 @@
 import pygame
-import threading
 
 # Local Imports
 import constants
@@ -7,7 +6,7 @@ import Singleplayer
 
 pygame.init()
 
-screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+screen = pygame.display.set_mode((0, 0), pygame.HWACCEL | pygame.SWSURFACE | pygame.DOUBLEBUF)
 width = screen.get_width()
 height = screen.get_height()
 
@@ -24,6 +23,7 @@ background_menu = pygame.image.load(constants.background_menu).convert()
 background_menu = pygame.transform.scale(background_menu,
                                          (background_menu.get_rect().width, height)).convert_alpha()
 background_x = 0
+
 
 def main():
 
@@ -48,7 +48,7 @@ def main():
                                        height / 2 + 80 + ((60 - text_multiplayer.get_rect().height) / 2)))
         screen.blit(text_quit, ((width / 2 - 200) + (400 - text_quit.get_rect().width) / 2,
                                 height / 2 + 160 + + ((60 - text_quit.get_rect().height) / 2)))
-        pygame.display.update()
+        pygame.display.flip()
 
 
 def menu_controls(clock):
