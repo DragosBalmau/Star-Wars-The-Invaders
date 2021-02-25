@@ -2,9 +2,6 @@ import constants
 import pygame
 
 
-# TODO
-#  - de gandit o modalitate sa trag mai multe gloante
-
 class Bullet:
 
     def __init__(self, x, y):

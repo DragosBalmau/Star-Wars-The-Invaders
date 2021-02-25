@@ -7,6 +7,7 @@ TODO:
 - [X] scale textures
 - [ ] power ups
 - [X] pregame logo display
+- [X] display classic cinematic
 - [X] moving background
 - [X] health bar
 - [X] display score

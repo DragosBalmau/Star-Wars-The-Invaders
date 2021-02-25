@@ -12,8 +12,7 @@ background_y = 0
 background_loop = True
 
 
-def initSingleplayer(screen, width, height, clock):
-
+def init_singleplayer(screen, width, height, clock):
     small_font = pygame.font.SysFont('Corbel', 35)
     big_font = pygame.font.SysFont('Corbel', 100)
 
@@ -25,6 +24,9 @@ def initSingleplayer(screen, width, height, clock):
         pass
     else:
         return
+
+    pygame.display.flip()
+    display_star_wars_cinematic(screen, width, height, clock)
 
     player = Player.Player(team=team)
     enemies = create_all_enemies(team)
@@ -38,7 +40,7 @@ def initSingleplayer(screen, width, height, clock):
     # TODO respawn cooldown
     respawn_cooldown_player = 0
 
-    thread_background = threading.Thread(target=background, args=(screen, height))
+    thread_background = threading.Thread(target=background, args=(screen, height, clock))
     thread_background.start()
 
     render_index = []
@@ -51,8 +53,6 @@ def initSingleplayer(screen, width, height, clock):
         clock.tick(constants.FPS)
 
         # screen.fill((255, 255, 255))
-        # TODO de cautat problema la lag-ul miscarii celorlate entitati
-
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
@@ -177,14 +177,15 @@ def set_nr_enemies(level):
     return number
 
 
-def background(screen, height):
+def background(screen, height, clock):
     global background_loop
     global background_y
-    # TODO imaginea nu trebuie incarcata la fiecare apelarea a functiei
-    while background_loop:
 
-        background_game = pygame.image.load(constants.background_game).convert_alpha()
-        background_game = pygame.transform.scale(background_game, (background_game.get_rect().width, height))
+    background_game = pygame.image.load(constants.background_game).convert_alpha()
+    background_game = pygame.transform.scale(background_game, (background_game.get_rect().width, height))
+
+    while background_loop:
+        clock.tick(constants.FPS)
         relative_y = background_y % background_game.get_rect().height
         screen.blit(background_game, (0, relative_y - background_game.get_rect().height))
         if relative_y < height:
@@ -194,14 +195,72 @@ def background(screen, height):
 
 def is_collision(entity, bullet):
     if isinstance(entity, Enemy.Enemy):
-        if entity.x <= bullet.x + bullet.image.get_rect().width and bullet.x <= entity.x + entity.image.get_rect().width \
+        if entity.x <= bullet.x + bullet.image.get_rect().width and \
+                bullet.x <= entity.x + entity.image.get_rect().width \
                 and bullet.y <= entity.y + entity.image.get_rect().height:
             return True
     else:
-        if entity.x <= bullet.x + bullet.image.get_rect().width and bullet.x <= entity.x + entity.image.get_rect().width \
-                and bullet.y + bullet.image.get_rect().height >= entity.y and bullet.y <= entity.y + entity.image.get_rect().height:
+        if entity.x <= bullet.x + bullet.image.get_rect().width and \
+                bullet.x <= entity.x + entity.image.get_rect().width \
+                and bullet.y + bullet.image.get_rect().height >= entity.y and \
+                bullet.y <= entity.y + entity.image.get_rect().height:
             return True
     return False
+
+
+def display_star_wars_cinematic(screen, width, height, clock):
+    small_font = pygame.font.SysFont('Arial', 100)
+
+    cinematic_text_part1 = small_font.render('A long time ago in a galaxy far,', True, constants.color_blue)
+    cinematic_text_part2 = small_font.render('far away....', True, constants.color_blue)
+
+    background_cinematic = pygame.image.load(constants.background_menu).convert_alpha()
+    background_cinematic = pygame.transform.scale(background_cinematic, (background_cinematic.get_rect().width, height))
+
+    logo_star_wars = pygame.image.load(constants.logo_star_wars_img).convert_alpha()
+    logo_star_wars = pygame.transform.scale(logo_star_wars, (1800, 1800))
+
+    cinematic_counter = 0
+
+    x_text = width / 2 - cinematic_text_part1.get_rect().width / 2
+    y_text = height / 2 - cinematic_text_part1.get_rect().height / 2
+
+    dim_x = logo_star_wars.get_rect().width
+    dim_y = logo_star_wars.get_rect().height
+
+    while True:
+        clock.tick(constants.FPS)
+        screen.blit(background_cinematic, (0, 0))
+        cinematic_counter += 1
+
+        if cinematic_counter < 1500:
+
+            if 0 <= cinematic_counter < 505:
+                cinematic_text_part1.set_alpha(cinematic_counter)
+                cinematic_text_part2.set_alpha(cinematic_counter)
+
+            if 994 <= cinematic_counter < 1500:
+                cinematic_text_part1.set_alpha(255 - (cinematic_counter - 994))
+                cinematic_text_part2.set_alpha(255 - (cinematic_counter - 994))
+
+            screen.blit(cinematic_text_part1, (x_text, y_text))
+            screen.blit(cinematic_text_part2, (x_text, y_text + cinematic_text_part1.get_rect().height + 5))
+
+        elif 1500 <= cinematic_counter < 6000:
+            logo_star_wars = pygame.image.load(constants.logo_star_wars_img).convert_alpha()
+            logo_star_wars = pygame.transform.scale(logo_star_wars, (dim_x, dim_y))
+
+            x_logo = width / 2 - dim_x / 2
+            y_logo = height / 2 - dim_y / 2
+            screen.blit(logo_star_wars, (x_logo, y_logo))
+
+            if dim_x - 4 and dim_y - 4:
+                dim_x -= 4
+                dim_y -= 4
+
+            else:
+                return
+        pygame.display.flip()
 
 
 def choose_team(screen, width, height, clock):
@@ -218,7 +277,7 @@ def choose_team(screen, width, height, clock):
         clock.tick(constants.FPS)
         screen.blit(background_choose_team, (0, 0))
         screen.blit(choose_team_text, (
-        width / 2 - choose_team_text.get_rect().width / 2, height / 4 - choose_team_text.get_rect().height / 2))
+            width / 2 - choose_team_text.get_rect().width / 2, height / 4 - choose_team_text.get_rect().height / 2))
         screen.blit(republican_team, (width / 2 - 2 * republican_team.get_rect().width, height / 2.5))
         screen.blit(empire_team, (width / 2 + empire_team.get_rect().width, height / 2.5))
 
@@ -227,11 +286,11 @@ def choose_team(screen, width, height, clock):
                 mouse = pygame.mouse.get_pos()
                 if width / 2 - 2 * republican_team.get_rect().width <= mouse[
                     0] <= width / 2 - republican_team.get_rect().width and height / 2.5 <= mouse[
-                    1] <= height / 2.5 + republican_team.get_rect().height:
+                        1] <= height / 2.5 + republican_team.get_rect().height:
                     return "Republic"
                 elif width / 2 + empire_team.get_rect().width <= mouse[
                     0] <= width / 2 + 2 * empire_team.get_rect().width and height / 2.5 <= mouse[
-                    1] <= height / 2.5 + republican_team.get_rect().height:
+                        1] <= height / 2.5 + republican_team.get_rect().height:
                     return "Empire"
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:

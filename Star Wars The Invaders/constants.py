@@ -5,6 +5,7 @@ FPS = 120
 color = (255, 255, 255)
 color_light = (170, 170, 170)
 color_dark = (100, 100, 100)
+color_blue = (0, 102, 255)
 
 # Images
 player_img = "Resources/x-wing.png"
