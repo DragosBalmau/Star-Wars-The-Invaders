@@ -1,6 +1,7 @@
 import pygame
 import random
 import threading
+import time
 
 # Local imports
 import constants
@@ -38,7 +39,8 @@ def init_singleplayer(screen, width, height, clock):
     level_display_time = 0
 
     # TODO respawn cooldown
-    respawn_cooldown_player = 0
+    respawn_cooldown_player = 255
+    first_spawn = True
 
     thread_background = threading.Thread(target=background, args=(screen, height, clock))
     thread_background.start()
@@ -48,7 +50,7 @@ def init_singleplayer(screen, width, height, clock):
 
     enemy_picked = random_enemy_fire(enemies, render_index)
     xwing_sound = pygame.mixer.Sound(constants.xwing_sound)
-    fighter_sound = pygame.mixer.Sound(constants.fighter_sound)
+    # fighter_sound = pygame.mixer.Sound(constants.fighter_sound)
 
     while True:
 
@@ -89,8 +91,9 @@ def init_singleplayer(screen, width, height, clock):
         player.stay_in_screen(width, height)
         player.verif_bullet(screen)
 
-        if enemy_picked.fire(screen):
-            pass
+        if not first_spawn:
+            if enemy_picked.fire(screen):
+                pass
             # fighter_sound.play()
 
         if is_collision(player, enemy_picked.bullet):
@@ -137,11 +140,19 @@ def init_singleplayer(screen, width, height, clock):
             lose_win(screen, width, height, clock, "Lose")
             return
 
-        player.display_player(screen)
-
-        for enemy in enemies:
-            if enemies.index(enemy) in render_index:
-                enemy.display_enemy(screen)
+        if first_spawn:
+            player.image.set_alpha(255 - respawn_cooldown_player)
+            player.display_player(screen)
+            respawn_cooldown_player -= 1
+            if respawn_cooldown_player == 0:
+                first_spawn = False
+                player.image.set_alpha(255)
+        else:
+            player.display_player(screen)
+        if not first_spawn:
+            for enemy in enemies:
+                if enemies.index(enemy) in render_index:
+                    enemy.display_enemy(screen)
 
         pygame.display.flip()
 
