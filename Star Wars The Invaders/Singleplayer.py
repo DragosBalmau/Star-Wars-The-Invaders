@@ -26,7 +26,7 @@ def init_singleplayer(screen, width, height, clock):
         return
 
     pygame.display.flip()
-    display_star_wars_cinematic(screen, width, height, clock)
+    # display_star_wars_cinematic(screen, width, height, clock)
 
     player = Player.Player(team=team)
     enemies = create_all_enemies(team)
@@ -96,8 +96,8 @@ def init_singleplayer(screen, width, height, clock):
         if is_collision(player, enemy_picked.bullet):
             enemy_picked.bullet.player_contact = True
             player.health -= 20
-            player.x = width / 2
-            player.y = height / 2
+            player.x = width / 2 - player.image.get_rect().width / 2
+            player.y = height - 150
 
         if enemy_picked.verif_bullet() == 0:
             enemy_picked = random_enemy_fire(enemies, render_index)
@@ -122,8 +122,8 @@ def init_singleplayer(screen, width, height, clock):
 
                 if is_collision(player, enemy):
                     player.health -= 20
-                    player.x = width / 2
-                    player.y = height / 2
+                    player.x = width / 2 - player.image.get_rect().width / 2
+                    player.y = height - 150
 
         level_display_time += 1
         if level_display_time < 100:

@@ -16,8 +16,8 @@ class Player:
         self.change_x = 0
         self.change_y = 0
 
-        self.x = 1920 / 2
-        self.y = 1080 - 100
+        self.x = 900
+        self.y = 930
 
         self.health = health
         self.score = score
