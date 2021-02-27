@@ -24,4 +24,7 @@ background_game = "Resources/background_game.png"
 republican = "Resources/republican_pilot.png"
 empire = "Resources/empire_pilot.png"
 
-theme_star_wars = "Resources/Star Wars Intro.mp3"
+# Sounds
+theme_star_wars = "Resources/Star-Wars-Intro.mp3"
+fighter_sound = "Resources/fighter_sound.mp3"
+xwing_sound = "Resources/x-wing_sound.mp3"

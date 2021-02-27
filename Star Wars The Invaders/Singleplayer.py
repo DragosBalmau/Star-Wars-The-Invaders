@@ -4,9 +4,9 @@ import threading
 
 # Local imports
 import constants
+import Bullet
 import Enemy
 import Player
-import Bullet
 
 background_y = 0
 background_loop = True
@@ -47,6 +47,8 @@ def init_singleplayer(screen, width, height, clock):
     render_index = generate_enemies(level, render_index)
 
     enemy_picked = random_enemy_fire(enemies, render_index)
+    xwing_sound = pygame.mixer.Sound(constants.xwing_sound)
+    fighter_sound = pygame.mixer.Sound(constants.fighter_sound)
 
     while True:
 
@@ -65,6 +67,7 @@ def init_singleplayer(screen, width, height, clock):
                     player.change_y = 7
                 if event.key == pygame.K_SPACE:
                     if player.bullet.state == "Ready":
+                        xwing_sound.play()
                         player.bullet.y = player.y
                         player.bullet.x = player.x + (player.image.get_rect().width / 2) - (
                                 player.bullet.image.get_rect().width / 2)
@@ -86,7 +89,9 @@ def init_singleplayer(screen, width, height, clock):
         player.stay_in_screen(width, height)
         player.verif_bullet(screen)
 
-        enemy_picked.fire(screen)
+        if enemy_picked.fire(screen):
+            pass
+            # fighter_sound.play()
 
         if is_collision(player, enemy_picked.bullet):
             enemy_picked.bullet.player_contact = True
@@ -102,6 +107,7 @@ def init_singleplayer(screen, width, height, clock):
             if level > 10:
                 background_loop = False
                 thread_background.join()
+                lose_win(screen, width, height, clock, "Win")
                 return
             render_index = generate_enemies(level, render_index)
             level_display_time = 0
@@ -114,11 +120,22 @@ def init_singleplayer(screen, width, height, clock):
                     player.score += 1
                     render_index.remove(enemies.index(enemy))
 
+                if is_collision(player, enemy):
+                    player.health -= 20
+                    player.x = width / 2
+                    player.y = height / 2
+
         level_display_time += 1
         if level_display_time < 100:
             display_level(screen, level, width, height, big_font)
-        display_score(screen, player.score, width, height, small_font)
-        display_health(screen, player.health, width, height, small_font)
+        display_score(screen, player.score, height, small_font)
+        display_health(screen, player.health, height, small_font)
+
+        if player.health == 0:
+            background_loop = False
+            thread_background.join()
+            lose_win(screen, width, height, clock, "Lose")
+            return
 
         player.display_player(screen)
 
@@ -177,6 +194,47 @@ def set_nr_enemies(level):
     return number
 
 
+def lose_win(screen, width, height, clock, state):
+
+    big_font = pygame.font.SysFont('Arial', 100)
+    cinematic_text_part1 = big_font.render('YOU WON!', True, constants.color_blue)
+    if state == "Lose":
+        cinematic_text_part1 = big_font.render('GAME OVER', True, constants.color_blue)
+
+    background_lose_win = pygame.image.load(constants.background_menu).convert_alpha()
+    background_lose_win = pygame.transform.scale(background_lose_win,
+                                                 (background_lose_win.get_rect().width, height))
+    alpha_factor = 0
+    background_lose_win.set_alpha(alpha_factor)
+
+    x_text = width / 2 - cinematic_text_part1.get_rect().width / 2
+    y_text = height / 2 - cinematic_text_part1.get_rect().height / 2
+
+    while True:
+        clock.tick(constants.FPS)
+        while alpha_factor <= 255:
+
+            clock.tick(constants.FPS)
+            background_lose_win.set_alpha(alpha_factor)
+
+            screen.blit(background_lose_win, (0, 0))
+            screen.blit(cinematic_text_part1, (x_text, y_text))
+
+            alpha_factor += 1
+            # mouse = pygame.mouse.get_pos()
+            # if width / 2 - 450 <= mouse[0] <= width / 2 - 50 and height / 2 + 100 <= mouse[1] <= height / 2 + 160:
+            #     pygame.draw.rect(screen, constants.color_light, [width / 2 - 450, height / 2 + 100, 400, 60])
+            # else:
+            #     pygame.draw.rect(screen, constants.color_dark, [width / 2 - 450, height / 2 + 100, 400, 60])
+            #
+            # if width / 2 + 50 <= mouse[0] <= width / 2 + 450 and height / 2 + 100 <= mouse[1] <= height / 2 + 160:
+            #     pygame.draw.rect(screen, constants.color_light, [width / 2 + 50, height / 2 + 100, 400, 60])
+            # else:
+            #     pygame.draw.rect(screen, constants.color_dark, [width / 2 + 50, height / 2 + 100, 400, 60])
+            pygame.display.flip()
+        return
+
+
 def background(screen, height, clock):
     global background_loop
     global background_y
@@ -194,25 +252,34 @@ def background(screen, height, clock):
 
 
 def is_collision(entity, bullet):
-    if isinstance(entity, Enemy.Enemy):
+    if isinstance(entity, Enemy.Enemy) and isinstance(bullet, Bullet.Bullet):
         if entity.x <= bullet.x + bullet.image.get_rect().width and \
                 bullet.x <= entity.x + entity.image.get_rect().width \
                 and bullet.y <= entity.y + entity.image.get_rect().height:
             return True
-    else:
-        if entity.x <= bullet.x + bullet.image.get_rect().width and \
-                bullet.x <= entity.x + entity.image.get_rect().width \
+    elif isinstance(entity, Enemy.Enemy) and isinstance(bullet, Bullet.Bullet):
+        if entity.x <= bullet.x + bullet.image.get_rect().width - 30 and \
+                bullet.x + 30 <= entity.x + entity.image.get_rect().width \
                 and bullet.y + bullet.image.get_rect().height >= entity.y and \
                 bullet.y <= entity.y + entity.image.get_rect().height:
             return True
+    else:
+        player = entity
+        enemy = bullet
+        if player.x <= enemy.x + enemy.image.get_rect().width - 10 and \
+                enemy.x + 10 <= player.x + player.image.get_rect().width \
+                and enemy.y + enemy.image.get_rect().height >= player.y and \
+                enemy.y <= player.y + player.image.get_rect().height:
+            return True
+
     return False
 
 
 def display_star_wars_cinematic(screen, width, height, clock):
-    small_font = pygame.font.SysFont('Arial', 100)
+    big_font = pygame.font.SysFont('Arial', 100)
 
-    cinematic_text_part1 = small_font.render('A long time ago in a galaxy far,', True, constants.color_blue)
-    cinematic_text_part2 = small_font.render('far away....', True, constants.color_blue)
+    cinematic_text_part1 = big_font.render('A long time ago in a galaxy far,', True, constants.color_blue)
+    cinematic_text_part2 = big_font.render('far away....', True, constants.color_blue)
 
     background_cinematic = pygame.image.load(constants.background_menu).convert_alpha()
     background_cinematic = pygame.transform.scale(background_cinematic, (background_cinematic.get_rect().width, height))
@@ -225,7 +292,7 @@ def display_star_wars_cinematic(screen, width, height, clock):
     cinematic_counter = 0
 
     x_text = width / 2 - cinematic_text_part1.get_rect().width / 2
-    y_text = height / 2 - cinematic_text_part1.get_rect().height / 2
+    y_text = height / 2 - cinematic_text_part1.get_rect().height / 2 - 50
 
     dim_x = logo_star_wars.get_rect().width
     dim_y = logo_star_wars.get_rect().height
@@ -242,10 +309,11 @@ def display_star_wars_cinematic(screen, width, height, clock):
             if 0 <= cinematic_counter < 505:
                 cinematic_text_part1.set_alpha(cinematic_counter)
                 cinematic_text_part2.set_alpha(cinematic_counter)
-
-            if 994 <= cinematic_counter < 1500:
+            elif 994 <= cinematic_counter < 1500:
                 cinematic_text_part1.set_alpha(255 - (cinematic_counter - 994))
                 cinematic_text_part2.set_alpha(255 - (cinematic_counter - 994))
+            else:
+                cinematic_counter += 6
 
             screen.blit(cinematic_text_part1, (x_text, y_text))
             screen.blit(cinematic_text_part2, (x_text, y_text + cinematic_text_part1.get_rect().height + 5))
@@ -295,11 +363,11 @@ def choose_team(screen, width, height, clock):
                 mouse = pygame.mouse.get_pos()
                 if width / 2 - 2 * republican_team.get_rect().width <= mouse[
                     0] <= width / 2 - republican_team.get_rect().width and height / 2.5 <= mouse[
-                        1] <= height / 2.5 + republican_team.get_rect().height:
+                    1] <= height / 2.5 + republican_team.get_rect().height:
                     return "Republic"
                 elif width / 2 + empire_team.get_rect().width <= mouse[
                     0] <= width / 2 + 2 * empire_team.get_rect().width and height / 2.5 <= mouse[
-                        1] <= height / 2.5 + republican_team.get_rect().height:
+                    1] <= height / 2.5 + republican_team.get_rect().height:
                     return "Empire"
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
@@ -309,12 +377,12 @@ def choose_team(screen, width, height, clock):
 
 # TODO putin design la score si health bar
 # TODO schimbat fontul
-def display_score(screen, score, width, height, small_font):
+def display_score(screen, score, height, small_font):
     text_score = small_font.render('Score: ' + str(score), True, constants.color)
     screen.blit(text_score, (30, height - 100))
 
 
-def display_health(screen, health, width, height, small_font):
+def display_health(screen, health, height, small_font):
     text_health = small_font.render('Health: ' + str(health), True, constants.color)
     screen.blit(text_health, (30, height - 50))
 

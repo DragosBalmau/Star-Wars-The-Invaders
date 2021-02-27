@@ -36,3 +36,4 @@ class Enemy:
     def fire(self, screen):
         self.bullet.y += self.bullet.change_y_enemy
         screen.blit(self.bullet.image.convert_alpha(), (self.bullet.x, self.bullet.y))
+        return True
