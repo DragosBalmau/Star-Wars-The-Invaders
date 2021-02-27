@@ -35,7 +35,7 @@ def main():
 
     clock = pygame.time.Clock()
     global logo_menu
-    display_pregame_cinematic()
+    # display_pregame_cinematic()
     logo_menu = pygame.image.load(constants.logo_star_wars_img).convert_alpha()
     logo_menu = pygame.transform.scale(logo_menu, (750, 750))
 

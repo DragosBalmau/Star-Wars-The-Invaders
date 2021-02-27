@@ -15,8 +15,8 @@ TODO:
 - [X] choose Team menu -> Singleplayer
 - [ ] always 3rd level with meteorites 
 - [ ] scoreboard with "database"
-- [ ] nice textures
-- [ ] sounds
+- [X] nice textures
+- [X] sounds
 - [ ] solve all the TODOs from code
 - [ ] MULTIPLAYER?!
 

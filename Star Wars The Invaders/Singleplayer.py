@@ -26,7 +26,7 @@ def init_singleplayer(screen, width, height, clock):
         return
 
     pygame.display.flip()
-    display_star_wars_cinematic(screen, width, height, clock)
+    # display_star_wars_cinematic(screen, width, height, clock)
 
     player = Player.Player(team=team)
     enemies = create_all_enemies(team)
@@ -196,19 +196,20 @@ def set_nr_enemies(level):
 
 def lose_win(screen, width, height, clock, state):
 
-    big_font = pygame.font.SysFont('Arial', 100)
-    cinematic_text_part1 = big_font.render('YOU WON!', True, constants.color_blue)
+    lose_win_image = pygame.image.load(constants.win)
     if state == "Lose":
-        cinematic_text_part1 = big_font.render('GAME OVER', True, constants.color_blue)
+        lose_win_image = pygame.image.load(constants.lose)
+    lose_win_image = pygame.transform.scale(lose_win_image, (700, 700)).convert_alpha()
 
     background_lose_win = pygame.image.load(constants.background_menu).convert_alpha()
     background_lose_win = pygame.transform.scale(background_lose_win,
                                                  (background_lose_win.get_rect().width, height))
     alpha_factor = 0
     background_lose_win.set_alpha(alpha_factor)
+    lose_win_image.set_alpha(alpha_factor)
 
-    x_text = width / 2 - cinematic_text_part1.get_rect().width / 2
-    y_text = height / 2 - cinematic_text_part1.get_rect().height / 2
+    x_text = width / 2 - lose_win_image.get_rect().width / 2
+    y_text = height / 2 - lose_win_image.get_rect().height / 2
 
     while True:
         clock.tick(constants.FPS)
@@ -216,9 +217,10 @@ def lose_win(screen, width, height, clock, state):
 
             clock.tick(constants.FPS)
             background_lose_win.set_alpha(alpha_factor)
+            lose_win_image.set_alpha(alpha_factor)
 
             screen.blit(background_lose_win, (0, 0))
-            screen.blit(cinematic_text_part1, (x_text, y_text))
+            screen.blit(lose_win_image, (x_text, y_text))
 
             alpha_factor += 1
             # mouse = pygame.mouse.get_pos()
