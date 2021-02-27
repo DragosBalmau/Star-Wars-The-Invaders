@@ -220,6 +220,8 @@ def display_star_wars_cinematic(screen, width, height, clock):
     logo_star_wars = pygame.image.load(constants.logo_star_wars_img).convert_alpha()
     logo_star_wars = pygame.transform.scale(logo_star_wars, (1800, 1800))
 
+    song_star_wars = pygame.mixer.Sound(constants.theme_star_wars)
+
     cinematic_counter = 0
 
     x_text = width / 2 - cinematic_text_part1.get_rect().width / 2
@@ -227,6 +229,8 @@ def display_star_wars_cinematic(screen, width, height, clock):
 
     dim_x = logo_star_wars.get_rect().width
     dim_y = logo_star_wars.get_rect().height
+
+    song_ok = True
 
     while True:
         clock.tick(constants.FPS)
@@ -247,9 +251,13 @@ def display_star_wars_cinematic(screen, width, height, clock):
             screen.blit(cinematic_text_part2, (x_text, y_text + cinematic_text_part1.get_rect().height + 5))
 
         elif 1500 <= cinematic_counter < 6000:
+
+            if song_ok:
+                song_ok = False
+                song_star_wars.play()
+
             logo_star_wars = pygame.image.load(constants.logo_star_wars_img).convert_alpha()
             logo_star_wars = pygame.transform.scale(logo_star_wars, (dim_x, dim_y))
-
             x_logo = width / 2 - dim_x / 2
             y_logo = height / 2 - dim_y / 2
             screen.blit(logo_star_wars, (x_logo, y_logo))
@@ -259,6 +267,7 @@ def display_star_wars_cinematic(screen, width, height, clock):
                 dim_y -= 4
 
             else:
+                song_star_wars.stop()
                 return
         pygame.display.flip()
 

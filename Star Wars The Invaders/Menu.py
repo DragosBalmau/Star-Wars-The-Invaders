@@ -6,7 +6,7 @@ import Singleplayer
 
 pygame.init()
 
-screen = pygame.display.set_mode((0, 0),  pygame.HWACCEL | pygame.SWSURFACE | pygame.DOUBLEBUF, vsync=1)
+screen = pygame.display.set_mode((0, 0),  pygame.HWACCEL | pygame.SWSURFACE | pygame.DOUBLEBUF, vsync=0)
 width = screen.get_width()
 height = screen.get_height()
 
