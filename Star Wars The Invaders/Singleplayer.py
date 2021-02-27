@@ -26,7 +26,7 @@ def init_singleplayer(screen, width, height, clock):
         return
 
     pygame.display.flip()
-    # display_star_wars_cinematic(screen, width, height, clock)
+    display_star_wars_cinematic(screen, width, height, clock)
 
     player = Player.Player(team=team)
     enemies = create_all_enemies(team)
@@ -302,6 +302,11 @@ def display_star_wars_cinematic(screen, width, height, clock):
     song_ok = True
 
     while True:
+
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                return
+
         clock.tick(constants.FPS)
         screen.blit(background_cinematic, (0, 0))
         cinematic_counter += 1
