@@ -13,6 +13,7 @@ enemy_img = "Resources/Textures/fighter.png"
 
 laser_img_blue = "Resources/Textures/laser_bullet_blue.png"
 laser_img_red = "Resources/Textures/laser_bullet_red.png"
+laser_img_green = "Resources/Textures/laser_bullet_red.png"
 
 logo_star_wars_img = "Resources/Textures/star_wars_logo.png"
 logo_python = "Resources/Textures/python_logo.png"
@@ -23,6 +24,7 @@ background_game = "Resources/Textures/background_game.png"
 
 republican = "Resources/Textures/republican_pilot.png"
 empire = "Resources/Textures/empire_pilot.png"
+boss = "Resources/Textures/boss.png"
 
 win = "Resources/Textures/you_won.png"
 lose = "Resources/Textures/game_over.png"

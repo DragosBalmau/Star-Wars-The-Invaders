@@ -1,13 +1,13 @@
 import pygame
 import random
 import threading
-import time
 
 # Local imports
 import constants
 import Bullet
 import Enemy
 import Player
+import Boss
 
 background_y = 0
 background_loop = True
@@ -27,19 +27,20 @@ def init_singleplayer(screen, width, height, clock):
         return
 
     pygame.display.flip()
-    # display_star_wars_cinematic(screen, width, height, clock)
+    display_star_wars_cinematic(screen, width, height, clock)
 
     player = Player.Player(team=team)
     enemies = create_all_enemies(team)
 
-    level = 1
+    level = 10
     global background_loop
     background_loop = True
 
+    boss = Boss.Boss(Bullet.Bullet(100, 200))
+
     level_display_time = 0
 
-    # TODO respawn cooldown
-    respawn_cooldown_player = 255
+    cooldown_on_spawn = 255
     first_spawn = True
 
     thread_background = threading.Thread(target=background, args=(screen, height, clock))
@@ -50,13 +51,10 @@ def init_singleplayer(screen, width, height, clock):
 
     enemy_picked = random_enemy_fire(enemies, render_index)
     xwing_sound = pygame.mixer.Sound(constants.xwing_sound)
-    # fighter_sound = pygame.mixer.Sound(constants.fighter_sound)
 
     while True:
 
         clock.tick(constants.FPS)
-
-        # screen.fill((255, 255, 255))
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
@@ -91,10 +89,8 @@ def init_singleplayer(screen, width, height, clock):
         player.stay_in_screen(width, height)
         player.verif_bullet(screen)
 
-        if not first_spawn:
-            if enemy_picked.fire(screen):
-                pass
-            # fighter_sound.play()
+        if not first_spawn and level < 10:
+            enemy_picked.fire(screen)
 
         if is_collision(player, enemy_picked.bullet):
             enemy_picked.bullet.player_contact = True
@@ -102,31 +98,56 @@ def init_singleplayer(screen, width, height, clock):
             player.x = width / 2 - player.image.get_rect().width / 2
             player.y = height - 150
 
-        if enemy_picked.verif_bullet() == 0:
-            enemy_picked = random_enemy_fire(enemies, render_index)
+        if level < 10:
+            if enemy_picked.verif_bullet() == 0:
+                enemy_picked = random_enemy_fire(enemies, render_index)
 
-        if len(render_index) == 0:
+        if len(render_index) == 0 and level < 10:
             level += 1
-            if level > 10:
-                background_loop = False
-                thread_background.join()
-                lose_win(screen, width, height, clock, "Win")
-                return
             render_index = generate_enemies(level, render_index)
             level_display_time = 0
 
-        for enemy in enemies:
-            if enemies.index(enemy) in render_index:
-                if is_collision(enemy, player.bullet):
-                    player.bullet.state = "Ready"
-                    player.bullet.y = player.y
-                    player.score += 1
-                    render_index.remove(enemies.index(enemy))
+        if level == 10:
+            boss.constant_move(screen)
+            boss.fire(screen)
 
-                if is_collision(player, enemy):
-                    player.health -= 20
-                    player.x = width / 2 - player.image.get_rect().width / 2
-                    player.y = height - 150
+            if is_collision(boss, player.bullet):
+                player.bullet.state = "Ready"
+                player.bullet.y = player.y
+                player.score += 1
+                boss.hp -= 20
+                if boss.hp == 0:
+                    background_loop = False
+                    thread_background.join()
+                    lose_win(screen, width, height, clock, "Win")
+                    return
+
+            if is_collision(player, boss):
+                player.x = width / 2 - player.image.get_rect().width / 2
+                player.y = height - 150
+                player.health -= 20
+
+            if is_collision(player, boss.bullet):
+                boss.bullet.player_contact = True
+                player.health -= 20
+                player.x = width / 2 - player.image.get_rect().width / 2
+                player.y = height - 150
+
+            boss.verif_bullet()
+
+        if level < 10:
+            for enemy in enemies:
+                if enemies.index(enemy) in render_index:
+                    if is_collision(enemy, player.bullet):
+                        player.bullet.state = "Ready"
+                        player.bullet.y = player.y
+                        player.score += 1
+                        render_index.remove(enemies.index(enemy))
+
+                    if is_collision(player, enemy):
+                        player.health -= 20
+                        player.x = width / 2 - player.image.get_rect().width / 2
+                        player.y = height - 150
 
         level_display_time += 1
         if level_display_time < 100:
@@ -141,15 +162,15 @@ def init_singleplayer(screen, width, height, clock):
             return
 
         if first_spawn:
-            player.image.set_alpha(255 - respawn_cooldown_player)
+            player.image.set_alpha(255 - cooldown_on_spawn)
             player.display_player(screen)
-            respawn_cooldown_player -= 1
-            if respawn_cooldown_player == 0:
+            cooldown_on_spawn -= 1
+            if cooldown_on_spawn == 0:
                 first_spawn = False
                 player.image.set_alpha(255)
         else:
             player.display_player(screen)
-        if not first_spawn:
+        if not first_spawn and level < 10:
             for enemy in enemies:
                 if enemies.index(enemy) in render_index:
                     enemy.display_enemy(screen)
@@ -192,21 +213,14 @@ def create_all_enemies(team):
 
 
 def set_nr_enemies(level):
-    # if level == 3:
-    #     # meteorites
-    #     number = 25
-    if level == 10:
-        # boss level
-        number = 1
-    else:
+    if level < 10:
         number = level * 2
-
-    print(level, number)
+    else:
+        return 1
     return number
 
 
 def lose_win(screen, width, height, clock, state):
-
     lose_win_image = pygame.image.load(constants.win)
     if state == "Lose":
         lose_win_image = pygame.image.load(constants.lose)
@@ -225,7 +239,6 @@ def lose_win(screen, width, height, clock, state):
     while True:
         clock.tick(constants.FPS)
         while alpha_factor <= 255:
-
             clock.tick(constants.FPS)
             background_lose_win.set_alpha(alpha_factor)
             lose_win_image.set_alpha(alpha_factor)
@@ -270,7 +283,7 @@ def is_collision(entity, bullet):
                 bullet.x <= entity.x + entity.image.get_rect().width \
                 and bullet.y <= entity.y + entity.image.get_rect().height:
             return True
-    elif isinstance(entity, Enemy.Enemy) and isinstance(bullet, Bullet.Bullet):
+    elif isinstance(entity, Player.Player) and isinstance(bullet, Bullet.Bullet):
         if entity.x <= bullet.x + bullet.image.get_rect().width - 30 and \
                 bullet.x + 30 <= entity.x + entity.image.get_rect().width \
                 and bullet.y + bullet.image.get_rect().height >= entity.y and \
@@ -393,15 +406,13 @@ def choose_team(screen, width, height, clock):
         pygame.display.flip()
 
 
-# TODO putin design la score si health bar
-# TODO schimbat fontul
 def display_score(screen, score, height, small_font):
     text_score = small_font.render('Score: ' + str(score), True, constants.color)
     screen.blit(text_score, (30, height - 100))
 
 
 def display_health(screen, health, height, small_font):
-    text_health = small_font.render('Health: ' + str(health), True, constants.color)
+    text_health = small_font.render('Lives: ' + str(int(health / 20)), True, constants.color)
     screen.blit(text_health, (30, height - 50))
 
 
